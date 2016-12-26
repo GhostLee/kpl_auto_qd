@@ -11,17 +11,7 @@ function check_if_activity_showup()
 		return 1
 	fi
 }
-function check_if_activity_showup_gles()
-{
-	echo "want act: " $1
-	re=$(adb shell dumpsys SurfaceFlinger | grep $1 | grep GLES)
-	echo $re
-	if [ "$re" == "" ];then
-		return 0
-	else
-		return 1
-	fi
-}
+
 
 function wait_act_showup()
 {
@@ -124,6 +114,19 @@ function do_share()
 		WB_FS_BTN='650 77'
 		SOUGOU_BTN='365 1005'
 		SOUGOU_WORD_BTN='123 754'
+	elif [ $1 == 109 ]; then
+		echo 'use 109'
+		SETTING_BTN='741 55'
+		QIAN_DAO_BTN='600 600'
+		SHARE_BTN='724 724'
+		WEIBO_BTN='386 1026'
+		WEIBO_WITH_SOGOU_BTN='381 670'
+		WB_QX_BTN='648 604'
+		WB_QX_ONLY_ME_BTN='365 281'
+		WB_FS_BTN='726 56'
+		SOUGOU_BTN='365 1005'
+		SOUGOU_WORD_BTN='123 754'
+
 	else
 		SETTING_BTN='1005 151'
 		QIAN_DAO_BTN='788 1440'
@@ -147,20 +150,34 @@ function do_share()
 	adb shell input tap $QIAN_DAO_BTN
 	sleep 1
 	adb shell input tap $SHARE_BTN
-	sleep 3
-	adb shell input tap $WEIBO_BTN
-	wait_act_showup com.aiyu.kaipanla.share.ShareResultActivity
+	sleep 1
+	if check_if_activity_showup InputMethod; then 
+		echo "no sougou"
+		adb shell input tap $WEIBO_BTN
+	else
+		echo "has sougou"
+		adb shell input tap $WEIBO_WITH_SOGOU_BTN
+	fi
+	#wait_act_showup com.aiyu.kaipanla.share.ShareResultActivity
+	wait_act_showup com.sina.weibo.composerinde.OriginalComposerActivity
 	#adb shell input keyevent $((RANDOM % 25 + 29))
 	#adb shell input keyevent $((RANDOM % 25 + 29))
-	wait_act_showup InputMethod
-	adb shell input tap $SOUGOU_BTN
-	adb shell input tap $SOUGOU_BTN
-	adb shell input tap $SOUGOU_BTN
-	adb shell input tap $SOUGOU_WORD_BTN
+	check_if_activity_showup InputMethod
+	if [ $? == 0 ];then
+		adb shell input keyevent 30
+		adb shell input keyevent 30
+		adb shell input keyevent 30
+		adb shell input tap 722 1222
+	else
+		adb shell input tap $SOUGOU_BTN
+		adb shell input tap $SOUGOU_BTN
+		adb shell input tap $SOUGOU_BTN
+		adb shell input tap $SOUGOU_WORD_BTN
+		adb shell input tap $WB_QX_BTN
+	fi
 	sleep 1
 	#adb shell input keyevent $((RANDOM % 25 + 29))
 
-	adb shell input tap $WB_QX_BTN
 	wait_act_showup com.sina.weibo.composerinde.appendix.ChooseShareScopeActivity
 	adb shell input tap $WB_QX_ONLY_ME_BTN
 	wait_act_showup com.aiyu.kaipanla.share.ShareResultActivity
@@ -174,63 +191,7 @@ function do_share()
 	adb shell input keyevent 4
 
 }
-function do_share_lhb()
-{
-	if [ $1 == 505 ]; then
-		DD_ZS_BTN='550 960'
-		SETTING_BTN='704 100'
-		QIAN_DAO_BTN='593 714'
-		SHARE_BTN='643 1200'
-		WEIBO_BTN='110 1050'
-		WB_QX_BTN='642 1158'
-		WB_QX_ONLY_ME_BTN='420 460'
-		WB_FS_BTN='655 88'
-	else
-		SETTING_BTN='1005 151'
-		QIAN_DAO_BTN='788 1440'
-		SHARE_BTN='968 1725'
-		WEIBO_BTN='828 1285'
-		WB_QX_BTN='956 1733'
-		WB_QX_ONLY_ME_BTN='570 700'
-		WB_FS_BTN='970 120'
-	fi
-	NAMES='lhb'
-	echo $NAMES
-	adb shell ps | grep $NAMES | awk '{system("adb shell kill "$2)}'
-	adb shell input keyevent 3
 
-	adb shell am start com.ft.lhb/.splash.SplashActivity
-	wait_act_showup com.ft.lhb.index.MainActivity
-	echo $?
-	sleep 1
-	adb shell input tap $SETTING_BTN
-
-	wait_act_showup com.ft.lhb.index.setting.MySettingActivity
-	echo $?
-	sleep 2
-	adb shell input swipe 336 508 300 1130
-	sleep 2
-	adb shell input tap $QIAN_DAO_BTN
-	sleep 1
-	adb shell input swipe 336 1180 300 600
-	adb shell input tap $SHARE_BTN
-	sleep 5
-	adb shell input tap $WEIBO_BTN
-	wait_act_showup com.ft.lhb.share.ShareResultActivity
-	adb shell input keyevent $((RANDOM % 25 + 29))
-	adb shell input keyevent $((RANDOM % 25 + 29))
-	sleep 1
-	adb shell input keyevent $((RANDOM % 25 + 29))
-
-	adb shell input tap $WB_QX_BTN
-	wait_act_showup com.sina.weibo.composerinde.appendix.ChooseShareScopeActivity
-	adb shell input tap $WB_QX_ONLY_ME_BTN
-	wait_act_showup com.aiyu.kaipanla.share.ShareResultActivity
-	adb shell input tap $WB_FS_BTN
-	sleep 2
-	adb shell input swipe 336 1180 300 600
-	adb shell input tap $SHARE_BTN
-}
 function swap_kpl_login()
 {
 	u[1]='13510933328'
@@ -306,9 +267,9 @@ function swap_kpl_login()
 #do_share 505
 #swap_kpl_login 2 505
 #do_share 505
-swap_kpl_login 3 505
-do_share 505
+#swap_kpl_login 3 505
+do_share 109
 
-swap_kpl_login 4 505
-do_share 505
+#swap_kpl_login 4 505
+#do_share 505
 #input_string '135'
