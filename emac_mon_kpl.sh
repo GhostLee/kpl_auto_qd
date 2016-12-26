@@ -270,13 +270,83 @@ function swap_kpl_login()
 
 
 }
-#input_del_cal 11
-#swap_kpl_login 1 505
-#do_share 505
-#swap_kpl_login 2 505
-#do_share 505
-#swap_kpl_login 3 505
-do_share 109
+
+function do_monkey()
+{
+    restart_kpl
+    let tap_cnt=0
+    while (( $tap_cnt < $1 )); do
+	let tx=$RANDOM%760
+	let ty=$RANDOM%1200+100
+	tapstr="$tx $ty"
+	echo $tapstr
+	input tap $tapstr
+	let tap_cnt=$tap_cnt+1
+	let need_tc=$tap_cnt%20
+	if [ $need_tc == 0 ]; then
+	    input keyevent 4
+	    sleep 2
+	    input keyevent 4
+	    echo "tc"
+	fi
+	
+    done
+    
+}
+
+
+function jlink_do()
+{
+echo $RANDOM > /sys/class/android_usb/android0/iSerial
+
+while(true){
+
+    echo "begin monkey test ..."
+    #echo "monkeytesting" > /sys/class/android_usb/android0/iSerial
+    echo $RANDOM > /sys/class/android_usb/android0/iSerial
+    br=$(cat /sys/class/leds/lcd-backlight/brightness)
+    echo $br
+    if [ $br -eq "0" ]
+    then
+    	echo "lcd is off, power it up"
+    	input keyevent 26
+    fi
+    
+  #for sprd platform
+    br=$(cat /sys/class/backlight/sprd_backlight/brightness)
+    echo $br
+    if [ $br -eq "0" ]
+    then
+    	echo "lcd is off, power it up"
+    	input keyevent 26
+    fi
+    
+    adbfunc=$(cat /sys/class/android_usb/android0/functions)
+    echo $adbfunc
+    if [[ $adbfunc == *"adb"* ]]
+    then
+        echo "got adb"
+    else
+        if [[ $adbfunc == *"ffs"* ]]
+        then
+            echo "got adb ffs"
+        else
+        	echo "not adb, enable it"
+        	setprop sys.usb.config mass_storage,adb;
+            setprop ro.sys.usb.storage.type mass_storage,adb;
+        fi
+    fi
+    echo $RANDOM > /sys/class/android_usb/android0/iSerial
+
+
+    do_share 109
+    do_monkey 9000
+    sleep 3600
+ }
+}
+
+jlink_do
+
 
 #swap_kpl_login 4 505
 #do_share 505
