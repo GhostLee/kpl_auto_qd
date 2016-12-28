@@ -2,24 +2,53 @@
 
 #CMD_PRE="adb shell"
 CMD_PRE=""
+pros=0
+input_on=0
+act_on=0
 function check_if_activity_showup()
 {
     echo "want act: " $1
+    let act_on=0
 	re=$(dumpsys SurfaceFlinger | grep $1 )
 	echo $re
 	if [ "$re" == "" ];then
-		return 0
+		let act_on=0
 	else
-		return 1
+		let act_on=1
 	fi
 }
 
+function check_current_project()
+{
+    re=$(dumpsys SurfaceFlinger | grep "FB TARGET" )
+    if [[ $re == *"800"* ]];then
+	let pros=800
+    elif [[ $re == *"1366"* ]]; then
+	let pros=1366
+    elif [[ $re == *"720"* ]]; then
+	let pros=720
+    else
+	echo "not pro"
+	let pros=1366
+    fi
+           
+}
+
+function if_input_showup()
+{
+	re=$(dumpsys SurfaceFlinger | grep InputMethod )
+	if [ "$re" == "" ];then
+		let input_on=0
+	else
+		let input_on=1
+	fi	
+}
 
 function wait_act_showup()
 {
 	let w_cnt=0;
 	check_if_activity_showup $1
-	while (( $? == 0 ));do
+	while (( $act_on == 0 ));do
 		sleep 2
 		check_if_activity_showup $1
 		let w_cnt=$w_cnt+1;
@@ -111,7 +140,9 @@ function input_del_cal()
 }
 function do_share()
 {
-	if [ $1 == 505 ]; then
+    check_current_project
+    echo $pros
+	if [ $pros == 720 ]; then
 		echo 'use 505'
 		SETTING_BTN='704 100'
 		QIAN_DAO_BTN='530 953'
@@ -122,7 +153,7 @@ function do_share()
 		WB_FS_BTN='650 77'
 		SOUGOU_BTN='365 1005'
 		SOUGOU_WORD_BTN='123 754'
-	elif [ $1 == 109 ]; then
+	elif [ $pros == 1366 ]; then
 		echo 'use 109'
 		SETTING_BTN='741 55'
 		QIAN_DAO_BTN='600 600'
@@ -134,8 +165,20 @@ function do_share()
 		WB_FS_BTN='726 56'
 		SOUGOU_BTN='365 1005'
 		SOUGOU_WORD_BTN='123 754'
-
+	elif [ $pros == 800 ]; then
+		echo 'use 960'
+		SETTING_BTN='771 60'
+		QIAN_DAO_BTN='590 633'
+		SHARE_BTN='750 750'
+		WEIBO_BTN='400 925'
+		WEIBO_WITH_SOGOU_BTN='400 530'
+		WB_QX_BTN='648 604'
+		WB_QX_ONLY_ME_BTN='365 281'
+		WB_FS_BTN='751 60'
+		SOUGOU_BTN='365 1005'
+		SOUGOU_WORD_BTN='123 754'
 	else
+	    echo "otherss"
 		SETTING_BTN='1005 151'
 		QIAN_DAO_BTN='788 1440'
 		SHARE_BTN='968 1725'
@@ -159,7 +202,9 @@ function do_share()
 	sleep 1
 	$CMD_PRE input tap $SHARE_BTN
 	sleep 1
-	if check_if_activity_showup InputMethod; then 
+	if_input_showup
+	sleep 1
+	if [ $input_on == 0]; then 
 		echo "no sougou"
 		$CMD_PRE input tap $WEIBO_BTN
 	else
@@ -170,25 +215,15 @@ function do_share()
 	wait_act_showup com.sina.weibo.composerinde.OriginalComposerActivity
 	#$CMD_PRE input keyevent $((RANDOM % 25 + 29))
 	#$CMD_PRE input keyevent $((RANDOM % 25 + 29))
-	check_if_activity_showup InputMethod
-	if [ $? == 0 ];then
-		$CMD_PRE input keyevent 30
-		$CMD_PRE input keyevent 30
-		$CMD_PRE input keyevent 30
-		$CMD_PRE input tap 722 1222
-	else
-		$CMD_PRE input tap $SOUGOU_BTN
-		$CMD_PRE input tap $SOUGOU_BTN
-		$CMD_PRE input tap $SOUGOU_BTN
-		$CMD_PRE input tap $SOUGOU_WORD_BTN
-		$CMD_PRE input tap $WB_QX_BTN
-	fi
-	sleep 1
-	#$CMD_PRE input keyevent $((RANDOM % 25 + 29))
+	if_input_showup
 
-	wait_act_showup com.sina.weibo.composerinde.appendix.ChooseShareScopeActivity
-	$CMD_PRE input tap $WB_QX_ONLY_ME_BTN
-	wait_act_showup com.aiyu.kaipanla.share.ShareResultActivity
+		$CMD_PRE input keyevent 30
+		$CMD_PRE input keyevent 30
+		$CMD_PRE input keyevent 30
+		$CMD_PRE input keyevent 30
+
+	sleep 1
+
 	$CMD_PRE input tap $WB_FS_BTN
 	sleep 2
 	wait_act_showup com.aiyu.kaipanla.index.setting.MySettingActivity
@@ -275,9 +310,15 @@ function do_monkey()
 {
     restart_kpl
     let tap_cnt=0
+    
     while (( $tap_cnt < $1 )); do
+    if [ $pros == 1366 ]; then
 	let tx=$RANDOM%760
 	let ty=$RANDOM%1200+100
+    elif [ $pros == 800 ]; then
+	let tx=$RANDOM%800
+	let ty=$RANDOM%1200+100
+    fi
 	tapstr="$tx $ty"
 	echo $tapstr
 	input tap $tapstr
@@ -297,7 +338,7 @@ function do_monkey()
 
 function jlink_do()
 {
-echo $RANDOM > /sys/class/android_usb/android0/iSerial
+    echo $RANDOM > /sys/class/android_usb/android0/iSerial
 
 while(true){
 
@@ -339,16 +380,19 @@ while(true){
     echo $RANDOM > /sys/class/android_usb/android0/iSerial
 
 
-    do_share 109
-    do_monkey 9000
-    let slt=$RANDOM%3+4
+    do_share
+    do_share
+    do_monkey 1000
+    let slt=$RANDOM%2+4
     let sltsec=$slt*3600
     sleep $sltsec
  }
 }
 
 jlink_do
-
+#check_current_project
+#echo $pros
+#do_share
 
 #swap_kpl_login 4 505
 #do_share 505
