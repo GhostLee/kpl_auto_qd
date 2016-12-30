@@ -441,7 +441,7 @@ function jlink_do()
 		do_share
 		do_share
 		let login_cnt=$login_cnt+1
-		do_monkey 1500
+		do_monkey 1200
 		let slt=$RANDOM%2+4
 		let sltsec=$slt*3600
 		sleep $sltsec
@@ -452,13 +452,15 @@ check_current_project
 if [[  $pros == 101  ]];then
 	check_current_project
 fi
-
-swap_kpl_login 0
-swap_kpl_login 1
-swap_kpl_login 2
-
+if [[  $pros == 101  ]];then
+	check_current_project
+fi
+if [[  $pros == 101  ]];then
+	check_current_project
+fi
 
 jlink_do
+
 #check_current_project
 #echo $pros
 #do_share
