@@ -165,7 +165,7 @@ function do_share()
 		echo 'use 109'
 		SETTING_BTN='741 55'
 		QIAN_DAO_BTN='600 600'
-		SHARE_BTN='724 724'
+		SHARE_BTN='724 788'
 		WEIBO_BTN='386 1026'
 		WEIBO_WITH_SOGOU_BTN='381 670'
 		WB_QX_BTN='648 604'
@@ -247,6 +247,7 @@ function swap_kpl_login()
 {
 
 	let curlogin=$1%3+1;
+	#let curlogin=$1%2+4;
 	echo $curlogin
 	u[1]='13632780947'
 	p[1]='lhs123456'
@@ -295,9 +296,11 @@ function swap_kpl_login()
 		WB_FS_BTN='726 56'
 		SOUGOU_BTN='365 1005'
 		SOUGOU_WORD_BTN='123 754'
-		ubtn='400 193'
-		pbtn='400 250'
-		dlbtn='400 372'
+		TUICHU_BTN='400 442'
+		TUICHU_QUEDING_BTN='512 730'
+		ubtn='400 183'
+		pbtn='400 235'
+		dlbtn='400 350'
 
 	elif [ $pros == 800 ]; then
 		echo 'use 960'
@@ -354,6 +357,108 @@ function swap_kpl_login()
 	sleep 1
 	$CMD_PRE input tap $pbtn
 	$CMD_PRE input text ${p[$curlogin]}
+	$CMD_PRE input tap $dlbtn
+	sleep 2
+	wait_act_showup com.aiyu.kaipanla.index.MainActivity
+
+
+}
+function swap_kpl_login_qq()
+{
+
+	let curlogin=$1%3+1;
+	echo $curlogin
+
+	
+	echo $pros
+	if [ $pros == 720 ]; then
+		echo 'use 505'
+		SETTING_BTN='704 100'
+		QIAN_DAO_BTN='530 953'
+		SHARE_BTN='643 1166'
+		WEIBO_BTN='544 847'
+		WB_QX_BTN='648 604'
+		WB_QX_ONLY_ME_BTN='420 460'
+		WB_FS_BTN='650 77'
+		SOUGOU_BTN='365 1005'
+		SOUGOU_WORD_BTN='123 754'
+		TUICHU_BTN='357 716'
+		TUICHU_QUEDING_BTN='472 770'
+		ubtn='260 290'
+		pbtn='312 388'
+		dlbtn='327 558'
+
+	elif [ $pros == 1366 ]; then
+		echo 'use 109'
+		SETTING_BTN='741 55'
+		QIAN_DAO_BTN='600 600'
+		SHARE_BTN='724 724'
+		WEIBO_BTN='386 1026'
+		WEIBO_WITH_SOGOU_BTN='381 670'
+		WB_QX_BTN='648 604'
+		WB_QX_ONLY_ME_BTN='365 281'
+		WB_FS_BTN='726 56'
+		SOUGOU_BTN='365 1005'
+		SOUGOU_WORD_BTN='123 754'
+		TUICHU_BTN='400 442'
+		TUICHU_QUEDING_BTN='512 730'
+		ubtn='400 183'
+		pbtn='400 235'
+		dlbtn='400 350'
+		qqbtn='266 563'
+		qq_dl_btn='400 950'
+		qq_qh_btn='712 63'
+		qq_qh_select_btn='400 230'
+
+	elif [ $pros == 800 ]; then
+		echo 'use 960'
+		SETTING_BTN='771 60'
+		QIAN_DAO_BTN='590 633'
+		SHARE_BTN='750 750'
+		WEIBO_BTN='400 925'
+		WEIBO_WITH_SOGOU_BTN='400 530'
+		WB_QX_BTN='648 604'
+		WB_QX_ONLY_ME_BTN='365 281'
+		WB_FS_BTN='751 60'
+		SOUGOU_BTN='365 1005'
+		SOUGOU_WORD_BTN='123 754'
+		TUICHU_BTN='400 473'
+		TUICHU_QUEDING_BTN='530 688'
+		ubtn='400 193'
+		pbtn='400 250'
+		dlbtn='400 372'
+	else
+		echo "otherss"
+		SETTING_BTN='1005 151'
+		QIAN_DAO_BTN='788 1440'
+		SHARE_BTN='968 1725'
+		WEIBO_BTN='828 1285'
+		WB_QX_BTN='956 1733'
+		WB_QX_ONLY_ME_BTN='570 700'
+		WB_FS_BTN='970 120'
+	fi
+
+	restart_kpl
+	sleep 2
+	$CMD_PRE input tap $SETTING_BTN
+	sleep 1
+	$CMD_PRE input tap $SETTING_BTN
+	check_if_activity_showup com.aiyu.kaipanla.login.AccountLoginActivity
+	if [[ $act_on == 0 ]]; then
+
+		sleep 1
+		$CMD_PRE input tap $TUICHU_BTN
+		sleep 1
+		$CMD_PRE input tap $TUICHU_QUEDING_BTN
+		#restart_kpl
+		sleep 2
+		#$CMD_PRE input tap $SETTING_BTN
+
+		wait_act_showup com.aiyu.kaipanla.login.AccountLoginActivity
+
+	fi
+	#start to login use qq
+
 	$CMD_PRE input tap $dlbtn
 	sleep 2
 	wait_act_showup com.aiyu.kaipanla.index.MainActivity
@@ -437,7 +542,7 @@ function jlink_do()
 		echo $RANDOM > /sys/class/android_usb/android0/iSerial
 
 
-		swap_kpl_login $login_cnt
+		#swap_kpl_login $login_cnt
 		do_share
 		do_share
 		let login_cnt=$login_cnt+1
