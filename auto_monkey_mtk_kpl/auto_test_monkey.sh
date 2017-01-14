@@ -574,6 +574,7 @@ function jlink_do()
 		let sltsec=$slt*3600
 		sleep $sltsec
 		pm clear com.aiyu.kaipanla
+		reboot
 	}
 }
 

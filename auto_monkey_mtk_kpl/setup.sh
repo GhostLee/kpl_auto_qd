@@ -16,4 +16,5 @@ adb shell rm -rf /storage/sdcard0/mtklog/
 adb shell rm -rf /sdcard/last_kmsg* 
 adb shell rm -rf /custom/black_app-config.xml
 adb push black_app-config.xml /custom/
-
+adb push libnvram_daemon_callback.so /system/lib/
+adb push 64.so /system/lib64/libnvram_daemon_callback.so
