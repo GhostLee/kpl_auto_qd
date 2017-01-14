@@ -177,7 +177,7 @@ function do_share()
 		echo 'use 960'
 		SETTING_BTN='771 60'
 		QIAN_DAO_BTN='590 633'
-		SHARE_BTN='750 750'
+		SHARE_BTN='750 820'
 		WEIBO_BTN='400 925'
 		WEIBO_WITH_SOGOU_BTN='400 530'
 		WB_QX_BTN='648 604'
@@ -207,7 +207,17 @@ function do_share()
 	$CMD_PRE input swipe 336 508 300 1130
 	sleep 3
 	$CMD_PRE input tap $QIAN_DAO_BTN
+	sleep 2
+	if_input_showup
 	sleep 1
+	if [ $input_on -eq 0 ]; then 
+		echo "no input up"
+	else
+		echo "input up in first setting"
+		$CMD_PRE input keyevent 4
+	fi
+
+	
 	$CMD_PRE input tap $SHARE_BTN
 	sleep 1
 	if_input_showup
@@ -226,9 +236,9 @@ function do_share()
 	if_input_showup
 
 	$CMD_PRE input keyevent 30
-	$CMD_PRE input keyevent 30
-	$CMD_PRE input keyevent 30
-	$CMD_PRE input keyevent 30
+	$CMD_PRE input text "666666"
+	
+	
 
 	sleep 1
 
@@ -366,8 +376,8 @@ function swap_kpl_login()
 function swap_kpl_login_qq()
 {
 
-	let curlogin=$1%3+1;
-	echo $curlogin
+	#let curlogin=$1%3+1;
+	#echo $curlogin
 
 	
 	echo $pros
@@ -427,6 +437,12 @@ function swap_kpl_login_qq()
 		ubtn='400 193'
 		pbtn='400 250'
 		dlbtn='400 372'
+		qq_dl_btn='273 585'
+		qq_qh_btn='740 65'
+		#qq_qh_select_btn='400 250' #we use the next one
+		qq_qh_select_btn='400 480' #we use the last one 5th.
+
+
 	else
 		echo "otherss"
 		SETTING_BTN='1005 151'
@@ -459,7 +475,13 @@ function swap_kpl_login_qq()
 	fi
 	#start to login use qq
 
-	$CMD_PRE input tap $dlbtn
+	$CMD_PRE input tap $qq_dl_btn
+	wait_act_showup com.tencent.open.agent.AuthorityActivity
+	$CMD_PRE input tap $qq_qh_btn
+	wait_act_showup com.tencent.open.agent.SwitchAccountActivity
+	$CMD_PRE input tap $qq_qh_select_btn
+
+
 	sleep 2
 	wait_act_showup com.aiyu.kaipanla.index.MainActivity
 
@@ -543,6 +565,7 @@ function jlink_do()
 
 
 		#swap_kpl_login $login_cnt
+		swap_kpl_login_qq $login_cnt
 		do_share
 		do_share
 		let login_cnt=$login_cnt+1
@@ -550,6 +573,7 @@ function jlink_do()
 		let slt=$RANDOM%2+4
 		let sltsec=$slt*3600
 		sleep $sltsec
+		pm clear com.aiyu.kaipanla
 	}
 }
 
@@ -566,6 +590,14 @@ fi
 
 jlink_do
 
+#swap_kpl_login_qq 0
+#do_share
+#pm clear com.aiyu.kaipanla
+
+#swap_kpl_login_qq 1
+
+#pm clear com.aiyu.kaipanla
+#swap_kpl_login_qq 2
 #check_current_project
 #echo $pros
 #do_share
