@@ -570,7 +570,7 @@ function jlink_do()
 		do_share
 		let login_cnt=$login_cnt+1
 		do_monkey 1200
-		let slt=$RANDOM%2+4
+		let slt=$RANDOM%2+2
 		let sltsec=$slt*3600
 		sleep $sltsec
 		pm clear com.aiyu.kaipanla
